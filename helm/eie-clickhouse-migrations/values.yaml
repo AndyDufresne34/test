@@ -1,0 +1,62 @@
+---
+image:
+  pullPolicy: IfNotPresent
+  repository: "{{ .Values.registry }}/nginx"
+  tag: 1.25.4-alpine
+
+initContainers:
+  liquibase:
+    image:
+      repository: "{{ .Values.registry }}/eie-clickhouse-migrations"
+    envFrom:
+      - secretRef:
+          name: '{{ include "app.fullname" . }}-secret-env'
+
+volumes:
+  - name: version
+    configMap:
+      name: '{{ include "app.fullname" . }}-version'
+
+volumeMounts:
+  - name: version
+    mountPath: /usr/share/nginx/html/index.html
+    subPath: index.html
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: '{{ include "app.fullname" . }}.{{ .Values.cluster_domain }}'
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  failureThreshold: 5
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 512Mi
+
+serviceAccount:
+  create: false

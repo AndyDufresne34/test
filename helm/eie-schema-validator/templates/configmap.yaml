@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {      
+      "ConnectionStrings": {
+          "Reference": "{{ .Values.infra.oracle.mdm_local }}"
+      },
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "ValidationConfig": {
+        "InputTopic": "{{ .Values.infra.kafka.topics.identified }}",
+        "InputTopicHigh": "{{ .Values.infra.kafka.topics.identifiedHigh }}",
+        "ConsumerNumber": {{ .Values.validation.consumer_number }},
+        "ErrorTopic": "{{ .Values.infra.kafka.topics.errors }}",
+        "MaxRetryCount": {{ .Values.validation.retry_count }},
+        "OutputTopic": "{{ .Values.infra.kafka.topics.validated }}",
+        "OutputTopicHigh": "{{ .Values.infra.kafka.topics.validatedHigh }}",
+        "OutputBucket": "{{ .Values.infra.kafka.topics.validated }}",
+        "SchemaBucket": "{{ .Values.validation.schema.bucket }}",
+        "SchemaCacheTimeHours": {{ .Values.validation.schema.cache_time_hours }}
+      }
+    }

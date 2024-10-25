@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: eie-signer
+  namespace: {{ .Values.meta_namespace}}
+  annotations:    
+    argocd-image-updater.argoproj.io/eie-signer.update-strategy: latest
+    argocd-image-updater.argoproj.io/eie-signer.allow-tags: {{ .Values.tag_regexp }}
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/argocd-repo-creds-https-creds
+spec:
+  destination:
+    namespace: {{ .Values.namespace }}
+    server: '{{ .Values.cluster_url }}'
+  source:
+    path: helm/eie-signer
+    repoURL: '{{ .Values.repo_url }}'
+    targetRevision: '{{ .Values.targetRevision }}'
+    helm:
+      ignoreMissingValueFiles: true
+      valueFiles:
+        - values.yaml
+        - values.{{ .Values.namespace }}.yaml
+        - ../../env/{{ .Values.namespace }}/values.yaml
+        - secrets://../../env/{{ .Values.namespace }}/secret.values.yaml
+  project: {{ .Values.project }}
+  syncPolicy:
+    syncOptions:
+      - PrunePropagationPolicy=foreground
+    {{- if .Values.automated.enabled }}
+    automated:
+      prune: {{ .Values.automated.prune }}
+      selfHeal: {{ .Values.automated.selfHeal }}
+    {{- end }}

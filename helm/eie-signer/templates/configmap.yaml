@@ -1,0 +1,89 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "SignService": {
+        "InputTopic": "sign-task",
+        "ConsumerNumber": 1,
+        "PollTimeout": 30,
+        "ErrorTopic": "sign-error",
+        "RetryCount": 10,
+        "SignTaskTopic": "sign-send",
+        "SignResultTopic": "sign-result",
+        "SendTaskTopic": "send-send"
+      },
+      "Gp3Sign": {
+        "Queue": {
+          "ConnectionType": "{{ .Values.external.gp3_sign.queue.connection_type }}",
+          "PopAddress": "{{ .Values.external.gp3_sign.queue.pop_address }}",
+          "PushAddress": "{{ .Values.external.gp3_sign.queue.push_address }}"
+        },
+        "Storage": {
+          "ConnectionType": "{{ .Values.external.gp3_sign.storage.connection_type }}",
+          "PopAddress": "{{ .Values.external.gp3_sign.storage.pop_address }}",
+          "PushAddress": "{{ .Values.external.gp3_sign.storage.push_address }}"
+        },
+        "NoopTimeoutSecond": "{{ .Values.external.gp3_sign.noop_timeout_second }}",
+        "GpkSign": {
+          "ConnectionType": "{{ .Values.external.gp3_sign.gpk_sign.connection_type }}",
+          "Address": "{{ .Values.external.gp3_sign.gpk_sign.address }}"
+        },
+        "IsUni": "{{ .Values.external.gp3_sign.is_uni }}",
+        "SystemId": "{{ .Values.external.gp3_sign.system_id }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "Refit": {
+        "TimeoutSeconds": 300
+      },
+      "CicSign": {
+        "PushItemStoresApiUrl": "{{ .Values.external.cic_sign.PushItemStoresUrl }}",
+        "PushItemStoreApiUrl": "{{ .Values.external.cic_sign.PushItemStoreUrl }}",
+        "PushItemsApiUrl": "{{ .Values.external.cic_sign.PushItemsUrl }}",
+        "PushCommitApiUrl": "{{ .Values.external.cic_sign.PushCommitUrl }}",
+        "PushGrcItemStoreApiUrl": "{{ .Values.external.cic_sign.PushGrcItemStoreUrl }}",
+        "GetContainerContentApiUrl": "{{ .Values.external.cic_sign.GetContainerContentUrl }}",
+        "PopCheckQueueSizeApiUrl": "{{ .Values.external.cic_sign.PopCheckQueueSizeUrl }}",
+        "PopBatchBindReadApiUrl": "{{ .Values.external.cic_sign.PopBatchBindReadUrl }}",
+        "PopBatchBindClearApiUrl": "{{ .Values.external.cic_sign.PopBatchBindClearUrl }}",
+        "PopCompleteApiUrl": "{{ .Values.external.cic_sign.PopCompleteUrl }}",
+        "PushGrcItemStoresApiUrl": "{{ .Values.external.cic_sign.PushGrcItemStoresUrl }}",
+        "PushGrcItemsApiUrl": "{{ .Values.external.cic_sign.PushGrcItemsUrl }}",
+        "PushGrcCommitApiUrl": "{{ .Values.external.cic_sign.PushGrcCommitUrl }}",
+        "BufferDir1": "{{ .Values.external.cic_sign.BufferDir1 }}",
+        "BufferDir2": "{{ .Values.external.cic_sign.BufferDir2 }}",
+        "BufferDir3": "{{ .Values.external.cic_sign.BufferDir3 }}",
+        "BufferBucket": "{{ .Values.external.cic_sign.BufferBucket }}",
+        "UspGp3Host": "{{ .Values.external.cic_sign.UspGp3Host }}",
+        "UspGp3HostIp": "{{ .Values.external.cic_sign.UspGp3HostIp }}"
+      },
+      "AllowedHosts": "*"
+    }

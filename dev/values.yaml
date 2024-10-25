@@ -1,0 +1,12 @@
+targetRevision: develop
+repo_url: ssh://git@adp-sviv-gl-1.adp.local:8822/sviv/devops/argocd.git
+repo_nexus_url: https://artifactory.gnivc.ru
+cluster_url: https://kubernetes.default.svc
+tag_regexp: regexp:^v\d.\d.(\d+|\d+.\d+)_\d+$
+namespace: dev
+project: dev
+meta_namespace: argo-cd
+automated:
+  enabled: true
+  prune: true
+  selfHeal: true

@@ -1,0 +1,86 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "ConnectionStrings": {
+        "ForeignBank": "{{ .Values.infra.postgresql.foreign_bank }}",
+        "LongTermDeduplicationService": "{{ .Values.infra.postgresql.long_term_deduplication }}",
+        "Reference": "{{ .Values.infra.oracle.mdm_local }}"
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "Journal": {
+        "OutputTopic": "journal",
+        "ErrorTopic": "_error",
+        "MaxRetryCount": 3
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "PowerOfAttorney": {
+        "CheckPowerOfAttorneyApiUrl": "{{ .Values.external.power_of_attorney.url }}",
+      },
+      "Refit": {
+        "TimeoutSeconds": {{ .Values.refit.timeout_seconds }}
+      },
+      "SubsystemForeignBank": {
+        "InputTopic1113027": "1113027",
+        "InputTopic1113030": "1113030",
+        "ConsumerNumber": 2,
+        "ErrorTopic": "_error",
+        "RetryCount": 3,
+        "DisableBusinessDeduplication": {{ .Values.business_services.subsystem_foreign_bank.disable_business_deduplication }},
+        "PersistedTaskDelays": {
+          "NextTryPowerOfAttorneyDelayMinutes": 120,
+          "NextTrySendResultStateDelayMinutes": 120,
+          "NextTryOnErrorDelayMinutes": 120,
+          "NextTryOnErrorDelayMaxMinutes": 7200,
+          "PowerOfAttorneyMaxWaitDays": 30
+        },
+        "PersistedTaskLoopDelays": {
+          "WithErrorWaitLoopDelaySeconds": 30,
+          "SubsystemWaitLoopDelaySeconds": 30,
+          "PowerOfAttorneyWaitLoopDelaySeconds": 30
+        }
+      },
+      "TaxpayerManagement": {
+        "IncomingDocumentRegistrationAllocateIdServiceApiUrl": "{{ .Values.external.taxpayer_management.allocate_id_url }}",
+        "IncomingDocumentRegistrationRegisterDocumentServiceApiUrl": "{{ .Values.external.taxpayer_management.register_document_url }}",
+        "IncomingDocumentRegistrationRegisterDocumentsServiceApiUrl": "{{ .Values.external.taxpayer_management.register_documents_url }}",
+        "IncomingDocumentRegistrationGetDocumentInfoServiceApiUrl": "{{ .Values.external.taxpayer_management.get_document_info_url }}",
+        "IncomingDocumentRegistrationRegisterInternetDocumentServiceApiUrl": "{{ .Values.external.taxpayer_management.register_internet_document }}",
+        "IncomingDocumentRegistrationRegisterInternetDocumentsServiceApiUrl": "{{ .Values.external.taxpayer_management.register_internet_documents }}"
+      },
+      "VioSettings": {
+        "VioSignerSettingsServiceApiUrl": "{{ .Values.external.vio_settings.VioSignerSettingsServiceUrl }}"
+      }
+    }

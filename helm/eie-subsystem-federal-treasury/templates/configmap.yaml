@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "AddressSystem": {
+        "AddressItemByIdApiUrl": "{{ .Values.external.address_system.AddressItemByIdUrl }}",
+        "FiasObjectTypesApiUrl": "{{ .Values.external.address_system.FiasObjectTypesUrl }}",
+        "HasDescendantAddressPartsApiUrl": "{{ .Values.external.address_system.HasDescendantAddressPartsUrl }}",
+        "SearchAddressItemByPartsApiUrl": "{{ .Values.external.address_system.SearchAddressItemByPartsUrl }}"
+      },
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "ConnectionStrings": {
+        "FederalTreasury": "{{ .Values.infra.postgresql.federal_treasury }}",
+        "LongTermDeduplicationService": "{{ .Values.infra.postgresql.long_term_deduplication }}",
+        "Reference": "{{ .Values.infra.oracle.mdm_local }}"
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "DocumentArchive": {
+        "RegisterDocumentApiUrl": "{{ .Values.external.document_archive.RegisterDocumentUrl }}",
+        "RegisterAttachApiUrl": "{{ .Values.external.document_archive.RegisterAttachUrl }}"
+      },
+      "FederalTreasury": {
+        "GetDocumentServiceApiUrl": "{{ .Values.external.federal_treasury.GetDocumentServiceUrl }}",
+        "AckDocumentServiceApiUrl": "{{ .Values.external.federal_treasury.AckDocumentServiceUrl }}",
+        "SignSettingsServiceApiUrl": "{{ .Values.external.federal_treasury.SignSettingsServiceUrl }}",
+        "AutoSign": {
+          "AutoSignPushServiceApiUrl": "{{ .Values.external.federal_treasury.auto_sign.AutoSignPushServiceUrl }}",
+          "AutoSignPopServiceApiUrl": "{{ .Values.external.federal_treasury.auto_sign.AutoSignPopServiceUrl }}",
+          "AutoSignPopPeriodMinutes": "{{ .Values.external.federal_treasury.auto_sign.AutoSignPopPeriodMinutes }}"
+        },
+        "ManualSign": {
+          "ManualSignServiceApiUrl": "{{ .Values.external.federal_treasury.manual_sign.ManualSignServiceUrl }}"
+        }
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },  
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Reorganization": {
+        "ApiUrl": "{{ .Values.external.reorganization.url }}"
+      },
+      "Refit": {
+        "TimeoutSeconds": {{ .Values.refit.timeout_seconds }}
+      },
+      "SmbStorage": {
+        "UserName": "User",
+        "Password": "Password",
+        "ShareFolder": "{{ .Values.external.ufk_storage.share_dir }}"
+      },
+      "SubsystemFederalTreasury": {
+        "InputTopic": "rsb-input",
+        "ConsumerNumber": 1,
+        "TfoConsumerNumber": 1,
+        "ResultTopic": "rsb-result",
+        "ErrorTopic": "rsb-error",
+        "TfoAutoSignTopic": "tfo-sign-auto",
+        "TfoManualSignTopic": "tfo-sign-man",
+        "TfoSignedTopic": "tfo-signed",
+        "TfoNoSignTopic": "tfo-no-sign",
+        "TfoStoredTopic": "ufk-out",
+        "TfoRegisterTopic": "ufk-arch-out",
+        "TfoRegisteredTopic": "ufk-arch-res",
+        "RetryCount": 3,
+        "DisableBusinessDeduplication": {{ .Values.business_services.subsystem_federal_treasury.disable_business_deduplication }},
+        "InputBucket": "rsb-input",
+        "TfoAutoSignBucket": "tfo-sign-auto",
+        "TfoManualSignBucket": "tfo-sign-man",
+        "TfoNoSignBucket": "tfo-no-sign",
+        "TfoStoredBucket": "ufk-out"
+      }
+    }

@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "ConnectionStrings": {
+        "IndividualRegistration": "{{ .Values.infra.postgresql.individual_registration }}",
+        "LongTermDeduplicationService": "{{ .Values.infra.postgresql.long_term_deduplication }}",
+        "Reference": "{{ .Values.infra.oracle.mdm_local }}"
+      },
+      "Refit": {
+        "TimeoutSeconds": {{ .Values.refit.timeout_seconds }}
+      },
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "PowerOfAttorney": {
+        "CheckPowerOfAttorneyApiUrl": "{{ .Values.external.power_of_attorney.url }}"
+      },
+      "Reorganization": {
+        "ApiUrl": "{{ .Values.external.reorganization.url }}"
+      },
+      "TaxpayerAccounting": {
+        "FindWtFlServiceApiUrl": "{{ .Values.external.taxpayer_accounting.findwtfserviceurl }}",
+        "FindWtUlServiceApiUrl": "{{ .Values.external.taxpayer_accounting.findwtuserviceurl }}",
+        "FindWtIoServiceApiUrl": "{{ .Values.external.taxpayer_accounting.findwtiserviceurl }}"
+      },
+      "TaxpayerIdentification": {
+        "TaxCodeByAddressFor1And101Open101ApiUrl":  "{{ .Values.external.taxpayer_identification.TaxCodeByAddressFor1And101Open101Url }}",
+        "TaxCodeByAddressFor1And101ApiUrl":  "{{ .Values.external.taxpayer_identification.TaxCodeByAddressFor1And101Url }}",
+        "TaxCodeByAddressOtherApiUrl":  "{{ .Values.external.taxpayer_identification.TaxCodeByAddressOtherUrl }}",
+        "Tax3PersonIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.Tax3PersonIdentificationUrl }}",
+        "Tax3ForeignIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.Tax3ForeignIdentificationUrl }}",
+        "Tax3LegalIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.Tax3LegalIdentificationUrl }}",
+        "PonilIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.PonilIdentificationUrl }}",
+        "UnionTaxpayerApiUrl":  "{{ .Values.external.taxpayer_identification.UnionTaxpayerUrl }}"
+      },
+      "DebtManagement": {
+        "DataPersistenceServiceApiUrl": "{{ .Values.external.debt_management.DataPersistenceServiceUrl }}",
+        "GetResultFromDbsServiceApiUrl": "{{ .Values.external.debt_management.GetResultFromDbsServiceUrl }}"
+      },
+      "VioSettings": {
+        "VioSignerSettingsServiceApiUrl": "{{ .Values.external.vio_settings.VioSignerSettingsServiceUrl }}"
+      },
+      "Gp3Client": {
+        "InputTopic": "sign-task",
+        "ConsumerNumber": 1,
+        "PollTimeout": 900,
+        "ErrorTopic": "sign-error",
+        "RetryCount": 0,
+        "OutputTopic": "sign-result",
+        "SendTopic": "sign-send"
+      },
+      "Journal": {
+        "OutputTopic": "journal",
+        "ErrorTopic": "_error",
+        "MaxRetryCount": 3
+      },
+      "SubsystemIndividualRegistration": {
+        "InputTopic1184025": "1184025",
+        "ConsumerNumber": 1,
+        "ErrorTopic": "_error",
+        "RetryCount": 10,
+        "DisableBusinessDeduplication": false,
+        "PersistedTaskDelays": {
+          "NextTryPowerOfAttorneyDelayMinutes": 120,
+          "NextTrySendResultStateDelayMinutes": 1,
+          "NextTryOnErrorDelayMinutes": 120,
+          "NextTryOnErrorDelayMaxMinutes": 7200,
+          "PowerOfAttorneyMaxWaitDays": 30
+        },
+        "PersistedTaskLoopDelays": {
+          "WithErrorWaitLoopDelaySeconds": 30,
+          "SubsystemWaitLoopDelaySeconds": 30,
+          "PowerOfAttorneyWaitLoopDelaySeconds": 30
+        }
+      }
+    }

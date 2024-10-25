@@ -1,0 +1,164 @@
+registry: artifactory.gnivc.ru:443/sviv-docker
+namespace: dev
+cluster_domain: sviv-k8s.adp.local
+environment: Development
+log_level: Debug
+infra:
+  jaeger:
+    url: http://jaeger-operator-jaeger-collector.jaeger.svc.cluster.local:4317
+  kafka:
+    url: "kafka-controller-0.kafka-controller-headless.kafka.svc.cluster.local:9092,kafka-controller-1.kafka-controller-headless.kafka.svc.cluster.local:9092,kafka-controller-2.kafka-controller-headless.kafka.svc.cluster.local:9092"
+    topics:
+      errors: _errors
+      initial: initial
+      received: stored
+      registered: registered
+      identified: identified
+      identifiedHigh: identified-high-priority
+      validated: validated
+      validatedHigh: validated-high-priority
+      journal: journal
+  redis:
+    url: redis-master.redis.svc.cluster.local:6379
+  minio:
+    url: adp-sviv-min-1.adp.local:9000
+  clickhouse:
+    host: clickhouse.clickhouse.svc.cluster.local
+    port: 8123
+polling_file_watcher: true
+
+external:
+
+  address_system: 
+    AddressItemByIdUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/addrsys/api/v1/fias/byid
+    FiasObjectTypesUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/addrsys/api/v1/fias/objtypes
+    HasDescendantAddressPartsUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/addrsys/api/v1/fias/hasdesc
+    SearchAddressItemByPartsUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/addrsys/api/v1/fias/byparts
+
+  cic_service:
+    GetContainersServiceUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsys/api/v1/containers
+    AckContainersServiceUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsys/api/v1/complete
+
+  cic_sign:
+    PushItemStoresUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushs
+    PushItemStoreUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushsi
+    PushItemsUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushi
+    PushCommitUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushc
+    PushGrcItemStoreUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushgsi
+    GetContainerContentUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/getcc
+    PopCheckQueueSizeUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/popqs
+    PopBatchBindReadUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/popqr
+    PopBatchBindClearUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/popcl
+    PopCompleteUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/popcm
+    PushGrcItemStoresUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushgs
+    PushGrcItemsUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushgi
+    PushGrcCommitUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/cicsign/api/v1/pushgc
+    BufferDir1: \\\\g2100-s-ais-fs\\share_fb2\\buffer_dir_tks1\\
+    BufferDir2: \\\\g2100-s-ais-fs\\share_fb2\\buffer_dir_tks2\\
+    BufferDir3: \\\\g2100-s-ais-fs\\share_fb2\\buffer_dir_tks3\\
+    BufferBucket: sign-buf
+    UspGp3Host: usp_gp3
+    UspGp3HostIp: 10.250.57.99
+
+  gp3_sign:
+    queue:
+      connection_type: Grpc
+      pop_address: g5200-s-ais5020:30033
+      push_address: g5200-s-ais5020:30034
+    storage:
+      connection_type: Grpc
+      pop_address: g5200-s-ais5020:30035
+      push_address: g5200-s-ais5020:30036
+    noop_timeout_second: 10
+    gpk_sign:
+      connection_type: Grpc
+      address: g5200-s-ais5020:10005
+    is_uni: false
+    system_id: Dsc$Sviv
+
+  debt_management:
+    DataPersistenceServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/dbs/api/v1/sendbg
+    GetResultFromDbsServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/dbs/api/v1/result
+
+  document_archive: 
+    RegisterDocumentUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/docarc/api/v1/regdoc
+    RegisterAttachUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/docarc/api/v1/regattach
+
+  federal_treasury: 
+    GetDocumentServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv-ufk/service/svivufk/ufksys/api/v1/documents
+    AckDocumentServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv-ufk/service/svivufk/ufksys/api/v1/complete
+    SignSettingsServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv-ufk/service/svivufk/viosettings/api/v1/ufksignsettings
+    auto_sign: 
+      AutoSignPushServiceUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv-ufk/service/svivufk/autosign/api/v1/push
+      AutoSignPopServiceUrl: http://10.250.59.212.local:9400/inias/csc/pf-is/app-sviv-ufk/service/svivufk/autosign/api/v1/pop
+      AutoSignPopPeriodMinutes: 3
+    manual_sign: 
+      ManualSignServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv-ufk/service/svivufk/mansign/api/v1/push
+
+  power_of_attorney:
+    url: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/poach/api/v1/validate
+
+  reorganization:
+    url: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/reorg/api/v1/get
+
+  refit: 
+    timeout_seconds: 300
+
+  ufk_storage: 
+    share_dir: \\\\adp-zero01.adp.local\\adp_shares\\ForUFK\\buffer_dir\\
+
+  taxpayer_management:
+    allocate_id_url: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpmanag/api/v1/allocids
+    register_document_url: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpmanag/api/v1/regdoc
+    register_documents_url: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpmanag/api/v1/regdocs
+    get_document_info_url: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpmanag/api/v1/getdocinfo
+    register_internet_document: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpmanag/api/v1/reginterdoc
+    register_internet_documents: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpmanag/api/v1/reginterdocs
+  
+  taxpayer_accounting:
+    findwtfserviceurl: http://10.250.59.212.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpaccount/api/v1/person
+    findwtuserviceurl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpaccount/api/v1/legal
+    findwtiserviceurl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpaccount/api/v1/foreign
+
+  taxpayer_identification:
+    TaxCodeByAddressFor1And101Open101Url: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/objopen
+    TaxCodeByAddressFor1And101Url: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/obj
+    TaxCodeByAddressOtherUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/other
+    Tax3PersonIdentificationUrl: http://10.250.59.212:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/person
+    Tax3ForeignIdentificationUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/foreign
+    Tax3LegalIdentificationUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/legal
+    PonilIdentificationUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/protected
+    UnionTaxpayerUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/tpident/api/v1/union
+
+  vio_registry:
+    SendAbonentServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/vioreg/api/v1/abon
+    SendOperatorServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/vioreg/api/v1/oper
+    SendCertificateServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/vioreg/api/v1/cert
+
+  vio_settings:
+    VioSignerSettingsServiceUrl: http://adp-is01.adp.local:9400/inias/csc/pf-is/app-sviv/service/sviv/viosettings/api/v1/signer
+    
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+business_services:
+  subsystem_foreign_bank:
+    disable_business_deduplication: true
+  subsystem_bank_guarantee:
+    disable_business_deduplication: true
+  subsystem_federal_treasury:
+    disable_business_deduplication: true

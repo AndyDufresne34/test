@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "Refit": {
+        "TimeoutSeconds": {{ .Values.refit.timeout_seconds }}
+      },
+      "ToArchiveSender": {
+        "InputTopic": "{{ .Values.infra.kafka.topics.identified }}",
+        "ConsumerNumber": {{ .Values.to_archive_sender.consumer_number }},
+        "ErrorTopic": "{{ .Values.infra.kafka.topics.errors }}",
+        "RetryCount": {{ .Values.to_archive_sender.retry_count }}
+      },
+      "DocumentArchive": {
+        "RegisterAttachApiUrl": "{{ .Values.external.document_archive.RegisterAttachUrl }}"
+      },
+      "VioRegistry": {
+        "SendAbonentApiUrl": "{{ .Values.external.vio_registry.SendAbonentServiceUrl }}",
+        "SendOperatorApiUrl": "{{ .Values.external.vio_registry.SendOperatorServiceUrl }}",
+        "SendCertificateApiUrl": "{{ .Values.external.vio_registry.SendCertificateServiceUrl }}"
+      }
+    }

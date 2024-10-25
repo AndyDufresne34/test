@@ -1,0 +1,5 @@
+---
+initContainers:
+  liquibase:
+    image:
+      tag: "0.1.0-000095-0759634b"

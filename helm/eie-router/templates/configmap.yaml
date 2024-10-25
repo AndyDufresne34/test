@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "Router": {
+        "InputMessageTopic": "{{ .Values.infra.kafka.topics.validated }}",
+        "InputMessageTopicHigh": "{{ .Values.infra.kafka.topics.validatedHigh }}",
+        "ConsumerNumber": {{ .Values.router.consumer_number }},
+        "ErrorMessageTopic": "{{ .Values.infra.kafka.topics.errors }}",
+        "RetryCount": {{ .Values.router.retry_count }}
+      }
+    }

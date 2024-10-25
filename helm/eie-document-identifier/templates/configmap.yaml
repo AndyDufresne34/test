@@ -1,0 +1,61 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "ConnectionStrings": {
+        "DocumentFlowContextService": "{{ .Values.infra.postgresql.document_flow_context_service }}"
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "HighPriorityConfig": {
+        "Rules": [
+          {
+            "KND": "1114319",
+            "Format": "5.04"
+          }
+        ]
+      },
+      "IdentificationConfig": {
+        "InputTopic": "{{ .Values.infra.kafka.topics.registered }}",
+        "ConsumerNumber": {{ .Values.identifier.consumer_number }},
+        "ErrorTopic": "{{ .Values.infra.kafka.topics.errors }}",
+        "MaxRetryCount": {{ .Values.identifier.retry_count }},
+        "OutputTopic": "{{ .Values.infra.kafka.topics.identified }}",
+        "OutputTopicHigh": "{{ .Values.infra.kafka.topics.identifiedHigh }}",
+        "OutputBucket": "{{ .Values.infra.kafka.topics.identified }}"
+      }
+    }
+    
+

@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "AddressSystem": {
+        "AddressItemByIdApiUrl": "{{ .Values.external.address_system.AddressItemByIdUrl }}", // Адрес http api ФИАС GetAddressItemById
+        "FiasObjectTypesApiUrl": "{{ .Values.external.address_system.FiasObjectTypesUrl }}", // Адрес http api ФИАС GetFiasObjectTypes
+        "HasDescendantAddressPartsApiUrl": "{{ .Values.external.address_system.HasDescendantAddressPartsUrl }}", // Адрес http api ФИАС HasDescendantAddressParts
+        "SearchAddressItemByPartsApiUrl": "{{ .Values.external.address_system.SearchAddressItemByPartsUrl }}" // Адрес http api ФИАС SearchAddressItemByParts
+      },
+      "AWS": {
+        "ServiceUrl": "http://{{ .Values.infra.minio.url }}",
+        "AccessKeyId": "{{ .Values.infra.minio.access_key }}",
+        "SecretAccessKey": "{{ .Values.infra.minio.secret_key }}"
+      },
+      "ConnectionStrings": {
+        "MvdRegistryResidence": "{{ .Values.infra.postgresql.mvd_registry_residence }}",
+        "LongTermDeduplicationService": "{{ .Values.infra.postgresql.long_term_deduplication }}",
+        "ManualSortingService": "{{ .Values.infra.postgresql.manual_sorting }}",
+        "Reference": "{{ .Values.infra.oracle.mdm_local }}"
+      },
+      "DocumentArchive": {
+        "RegisterDocumentApiUrl": "{{ .Values.external.document_archive.RegisterDocumentUrl }}",
+        "RegisterAttachApiUrl": "{{ .Values.external.document_archive.RegisterAttachUrl }}"
+      },
+      "Deduplication": {
+        "ConnectionString": "{{ .Values.infra.redis.url }}",
+        "SlidingExpirationHours": 24
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "Consumer": {
+          "GroupId": "{{ include "app.fullname" . }}"
+        }
+      },
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "Refit": {
+        "TimeoutSeconds": {{ .Values.refit.timeout_seconds }}
+      }, 
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Reorganization": {
+        "ApiUrl": "{{ .Values.external.reorganization.url }}"
+      },
+      "SubsytemMvdRegistryResidence": {
+        "InputTopicRfl1": "rfl1",
+        "ConsumerNumber": 1,
+        "ErrorTopic": "_error",
+        "RetryCount": 1,
+        "DisableBusinessDeduplication": false,
+        "PersistedTaskDelays": {
+          "NextTrySendResultStateDelayMinutes": 120,
+          "NextTryOnErrorDelayMinutes": 120,
+          "NextTryOnErrorDelayMaxMinutes": 7200
+        },
+        "PersistedTaskLoopDelays": {
+          "WithErrorWaitLoopDelaySeconds": 30,
+          "SubsystemWaitLoopDelaySeconds": 30
+        }
+      },
+      "TaxpayerIdentification": {
+        "TaxCodeByAddressFor1And101Open101ApiUrl":  "{{ .Values.external.taxpayer_identification.TaxCodeByAddressFor1And101Open101Url }}",
+        "TaxCodeByAddressFor1And101ApiUrl":  "{{ .Values.external.taxpayer_identification.TaxCodeByAddressFor1And101Url }}",
+        "TaxCodeByAddressOtherApiUrl":  "{{ .Values.external.taxpayer_identification.TaxCodeByAddressOtherUrl }}",
+        "Tax3PersonIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.Tax3PersonIdentificationUrl }}",
+        "Tax3ForeignIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.Tax3ForeignIdentificationUrl }}",
+        "Tax3LegalIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.Tax3LegalIdentificationUrl }}",
+        "PonilIdentificationApiUrl":  "{{ .Values.external.taxpayer_identification.PonilIdentificationUrl }}",
+        "UnionTaxpayerApiUrl":  "{{ .Values.external.taxpayer_identification.UnionTaxpayerUrl }}"
+      },
+      "TaxpayerManagement": {
+        "IncomingDocumentRegistrationAllocateIdServiceApiUrl": "{{ .Values.external.taxpayer_management.allocate_id_url }}",
+        "IncomingDocumentRegistrationRegisterDocumentServiceApiUrl": "{{ .Values.external.taxpayer_management.register_document_url }}",
+        "IncomingDocumentRegistrationRegisterDocumentsServiceApiUrl": "{{ .Values.external.taxpayer_management.register_documents_url }}",
+        "IncomingDocumentRegistrationGetDocumentInfoServiceApiUrl": "{{ .Values.external.taxpayer_management.get_document_info_url }}",
+        "IncomingDocumentRegistrationRegisterInternetDocumentServiceApiUrl": "{{ .Values.external.taxpayer_management.register_internet_document }}",
+        "IncomingDocumentRegistrationRegisterInternetDocumentsServiceApiUrl": "{{ .Values.external.taxpayer_management.register_internet_documents }}"
+      },
+      "VioSettings": {
+        "VioSignerSettingsServiceApiUrl": "{{ .Values.external.vio_settings.VioSignerSettingsServiceUrl }}"
+      }
+    }

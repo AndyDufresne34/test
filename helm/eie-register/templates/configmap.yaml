@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "app.fullname" . }}-config
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+data:
+  appsettings.json: |-
+    {
+      "Logging": {
+        "LogLevel": {
+          "CorrelationId.CorrelationIdMiddleware": "Warning",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "Warning"
+        }
+      },
+      "NLogExtraConfig": {
+        "min_level": "{{ .Values.log_level }}"
+      },
+      "OpenTelemetry": {
+        "OtlpEndpointUrl": "{{ .Values.infra.jaeger.url }}"
+      },
+      "Kafka": {
+        "Uri": "{{ .Values.infra.kafka.url }}"
+      },
+      "RxConsumer": {
+        "GroupId": "{{ include "app.fullname" . }}",
+        "Uri": "{{ .Values.infra.kafka.url }}",
+        "BatchSize": {{ .Values.register.kafka.batch_size }},
+        "BufferCount": {{ .Values.register.kafka.buffer_count }},
+        "BufferSizeMs": {{ .Values.register.kafka.buffer_size_ms }},
+        "InputTopic": "{{ .Values.infra.kafka.topics.journal }}",
+        "ExceptionTopic": "{{ .Values.infra.kafka.topics.errors }}"
+      },
+      "ConnectionStrings": {
+        "Default": "{{ .Values.infra.clickhouse.default }}"
+      },
+      "ClickhouseConfig": {
+        "DestinationTable": "{{ .Values.register.clickhouse.destination_table }}",
+        "BatchSize": {{ .Values.register.clickhouse.batch_size }},
+        "Timer": {{ .Values.register.clickhouse.timer }}
+      }
+    }
